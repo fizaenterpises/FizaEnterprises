@@ -78,16 +78,32 @@ const settingDefaults = {
 const insertSetting = db.prepare("INSERT OR IGNORE INTO settings(key,value) VALUES(?,?)");
 for (const [k,v] of Object.entries(settingDefaults)) insertSetting.run(k,v);
 
-if (!db.prepare("SELECT id FROM admins LIMIT 1").get()) {
-  const username = process.env.ADMIN_USERNAME || "admin";
-  const password = process.env.ADMIN_PASSWORD;
-  if (!password || password.length < 12) {
-    console.warn("No secure admin password supplied. Set ADMIN_PASSWORD before running production.");
+const username = process.env.ADMIN_USERNAME || "admin";
+const password = process.env.ADMIN_PASSWORD;
+
+if (!password || password.length < 12) {
+  console.warn("No secure admin password supplied. Set ADMIN_PASSWORD before running production.");
+} else {
+  const hash = bcrypt.hashSync(password, 12);
+
+  const existing = db
+    .prepare("SELECT id FROM admins WHERE username = ?")
+    .get(username);
+
+  if (existing) {
+    db
+      .prepare("UPDATE admins SET password_hash = ? WHERE username = ?")
+      .run(hash, username);
+
+    console.log(`Updated admin password for: ${username}`);
   } else {
-    const hash = bcrypt.hashSync(password, 12);
-    db.prepare("INSERT INTO admins(username,password_hash) VALUES(?,?)").run(username, hash);
+    db
+      .prepare("INSERT INTO admins(username,password_hash) VALUES(?,?)")
+      .run(username, hash);
+
     console.log(`Created admin user: ${username}`);
   }
+}
 }
 
 if (db.prepare("SELECT COUNT(*) AS n FROM packages").get().n === 0) {
