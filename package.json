@@ -1,0 +1,22 @@
+{
+  "name": "fiza-enterprises-hajj-umrah",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Fiza Enterprises luxury Hajj & Umrah website with secure admin and package enquiry system",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "dev": "node --watch server.js"
+  },
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "better-sqlite3": "^11.8.1",
+    "connect-sqlite3": "^0.9.15",
+    "dotenv": "^16.4.7",
+    "express": "^5.1.0",
+    "express-rate-limit": "^7.5.0",
+    "express-session": "^1.18.1",
+    "helmet": "^8.1.0",
+    "bcrypt": "^6.0.0"
+  }
+}
