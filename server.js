@@ -9,7 +9,7 @@ const SQLiteStore = require("connect-sqlite3")(session);
 const bcrypt = require("bcrypt");
 const Database = require("better-sqlite3");
 
-const app = express();
+const app = express();app.set("trust proxy", 1);
 const PORT = Number(process.env.PORT || 3000);
 const DATA_DIR = path.join(__dirname, "data");
 fs.mkdirSync(DATA_DIR, { recursive: true });
