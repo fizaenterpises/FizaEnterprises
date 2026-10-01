@@ -104,7 +104,7 @@ if (!password || password.length < 12) {
     console.log(`Created admin user: ${username}`);
   }
 }
-}
+
 
 if (db.prepare("SELECT COUNT(*) AS n FROM packages").get().n === 0) {
   const seed = db.prepare(`INSERT INTO packages(type,name,subtitle,description,price_label,duration,inclusions,active)
