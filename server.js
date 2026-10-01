@@ -198,8 +198,16 @@ app.post("/api/login", loginLimiter, async (req,res) => {
   if (!admin || !(await bcrypt.compare(password, admin.password_hash)))
     return res.status(401).json({error:"Invalid username or password"});
   req.session.adminId = admin.id;
-  req.session.username = admin.username;
+req.session.username = admin.username;
+
+req.session.save((err) => {
+  if (err) {
+    console.error("Session save error:", err);
+    return res.status(500).json({error:"Could not create login session"});
+  }
+
   res.json({ok:true,username:admin.username});
+});
 });
 app.post("/api/logout", requireAdmin, (req,res)=>req.session.destroy(()=>res.json({ok:true})));
 app.get("/api/me", (req,res)=>res.json({authenticated:!!req.session.adminId,username:req.session.username||null}));
