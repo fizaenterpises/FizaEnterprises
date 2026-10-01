@@ -1,4 +1,4 @@
-async function api(url,opt={}){const r=await fetch(url,{...opt,headers:{"Content-Type":"application/json",...(opt.headers||{})}});const x=await r.json().catch(()=>({}));if(!r.ok)throw new Error(x.error||"Request failed");return x}
+async function api(url,opt={}){const r=await fetch(url,{...opt,credentials:"include",headers:{"Content-Type":"application/json",...(opt.headers||{})}});const x=await r.json().catch(()=>({}));if(!r.ok)throw new Error(x.error||"Request failed");return x}
 async function boot(){const me=await api("/api/me");if(me.authenticated){showApp(me.username);await refresh()}else document.querySelector("#login").classList.remove("hidden")}
 function showApp(u){$("#login").classList.add("hidden");$("#app").classList.remove("hidden");$("#who").textContent=u}
 async function login(){try{const x=await api("/api/login",{method:"POST",body:JSON.stringify({username:$("#user").value,password:$("#pass").value})});showApp(x.username);await refresh()}catch(e){$("#loginMsg").textContent=e.message}}
