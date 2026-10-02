@@ -11,10 +11,10 @@ async function load(){
   $("#heroWa").href=wa("Assalamu Alaikum, I would like to know about your Hajj and Umrah assistance.");
   $("#waContact").href=wa("Assalamu Alaikum, I would like personal Hajj/Umrah assistance.");
   $("#floatWa").href=wa("Assalamu Alaikum, I need Hajj/Umrah assistance.");
-  $("#footerPhone").textContent=settings.phone; $("#footerPhone").href=`tel:${settings.phone}`;
+
   $("#footerTagline").textContent=settings.tagline;
   $("#packageGrid").innerHTML=packages.map(p=>`
-    <article class="card"><div class="card-top"></div><div class="card-body">
+    <article class="card"><div class="card-top ${String(p.type).toLowerCase()==="umrah"?"makkah":"madina"}"></div><div class="card-body">
       <span class="badge">${p.type.toUpperCase()}</span><h3>${esc(p.name)}</h3>
       <p>${esc(p.subtitle)}</p><p>${esc(p.description)}</p>
       <ul>${esc(p.inclusions).split("\\n").filter(Boolean).map(x=>`<li>${x}</li>`).join("")}</ul>
