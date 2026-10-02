@@ -15,5 +15,7 @@ async function deletePackage(id){if(confirm("Archive this package?")){await api(
 async function loadSettings(){const s=await api("/api/admin/settings");for(const [id,key] of [["s_name","business_name"],["s_tagline","tagline"],["s_phone","phone"],["s_whatsapp","whatsapp"],["s_email","email"],["s_location","location"]])$("#"+id).value=s[key]||""}
 async function saveSettings(){try{await api("/api/admin/settings",{method:"PUT",body:JSON.stringify({business_name:$("#s_name").value,tagline:$("#s_tagline").value,phone:$("#s_phone").value,whatsapp:$("#s_whatsapp").value,email:$("#s_email").value,location:$("#s_location").value})});$("#saveMsg").textContent="Settings saved."}catch(e){$("#saveMsg").textContent=e.message}}
 function $(s){return document.querySelector(s)}function esc(s){return String(s??"").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
-document.querySelector("#login button").addEventListener("click", login);
 boot().catch(e=>$("#loginMsg").textContent=e.message);
+
+const loginButton = document.querySelector("#login button");
+if (loginButton) loginButton.addEventListener("click", login);
