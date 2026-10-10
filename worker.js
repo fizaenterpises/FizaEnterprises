@@ -96,9 +96,13 @@ async function supabase(env, path, options = {}) {
   try { data = text ? JSON.parse(text) : null; } catch { data = text; }
 
   if (!response.ok) {
-    console.error("Supabase request failed:", response.status);
-    throw new Error("Database request failed");
-  }
+  console.error(
+    "Supabase request failed:",
+    response.status,
+    typeof data === "string" ? data : JSON.stringify(data)
+  );
+  throw new Error(`Database request failed (${response.status})`);
+}
   return data;
 }
 
@@ -171,10 +175,10 @@ async function handleApi(request, env, url) {
         body: JSON.stringify(data)
       });
       return json({ ok: true, enquiry: rows?.[0] || null }, 201);
-    } catch {
-      return json({ error: "Could not save enquiry. Please try again." }, 503);
-    }
-  }
+ } catch (error) {
+  console.error("Enquiry save failed:", error);
+  return json({ error: "Could not save enquiry. Please try again." }, 503);
+}
 
   if (path === "/api/packages" && method === "GET") return json(PACKAGES);
   if (path === "/api/settings" && method === "GET") return json(SETTINGS);
