@@ -175,10 +175,11 @@ async function handleApi(request, env, url) {
         body: JSON.stringify(data)
       });
       return json({ ok: true, enquiry: rows?.[0] || null }, 201);
- } catch (error) {
-  console.error("Enquiry save failed:", error);
-  return json({ error: "Could not save enquiry. Please try again." }, 503);
-}
+     } catch (error) {
+      console.error("Enquiry save failed:", error);
+      return json({ error: "Could not save enquiry. Please try again." }, 503);
+    }
+  }
 
   if (path === "/api/packages" && method === "GET") return json(PACKAGES);
   if (path === "/api/settings" && method === "GET") return json(SETTINGS);
