@@ -106,21 +106,6 @@ async function supabase(env, path, options = {}) {
   return data;
 }
 
-function cleanEnquiry(body) {
-  const adults = Math.max(1, Number.parseInt(body.adults ?? 1, 10) || 1);
-  const children = Math.max(0, Number.parseInt(body.children ?? 0, 10) || 0);
-  return {
-    interested_in: String(body.interest || body.interested_in || "").slice(0, 40),
-    package_text: String(body.packageText || body.package_text || "").slice(0, 120),
-    full_name: String(body.name || body.full_name || "").trim().slice(0, 120),
-    phone: String(body.phone || "").trim().slice(0, 40),
-    city: String(body.city || "").trim().slice(0, 100),
-    email: String(body.email || "").trim().slice(0, 160),
-    travel_month: String(body.travelMonth || body.travel_month || "").slice(0, 60),
-    adults, children,
-    message: String(body.message || "").trim().slice(0, 2000)
-  };
-}
 
 async function handleApi(request, env, url) {
   const method = request.method;
@@ -162,25 +147,7 @@ async function handleApi(request, env, url) {
     return username ? json({ authenticated: true, username }) : json({ authenticated: false }, 401);
   }
 
-  if (path === "/api/enquiries" && method === "POST") {
-    const data = cleanEnquiry(await request.json().catch(() => ({})));
-    if (!data.full_name || !data.phone) {
-      return json({ error: "Name and phone are required" }, 400);
-    }
-
-    try {
-      const rows = await supabase(env, "enquiries", {
-        method: "POST",
-        headers: { Prefer: "return=representation" },
-        body: JSON.stringify(data)
-      });
-      return json({ ok: true, enquiry: rows?.[0] || null }, 201);
-     } catch (error) {
-      console.error("Enquiry save failed:", error);
-      return json({ error: "Could not save enquiry. Please try again." }, 503);
-    }
-  }
-
+  
   if (path === "/api/packages" && method === "GET") return json(PACKAGES);
   if (path === "/api/settings" && method === "GET") return json(SETTINGS);
 
@@ -188,43 +155,7 @@ async function handleApi(request, env, url) {
     const username = await readSession(request, env);
     if (!username) return json({ error: "Not authenticated" }, 401);
 
-    if (path === "/api/admin/dashboard" && method === "GET") {
-      try {
-        const rows = await supabase(env, "enquiries?select=*&order=created_at.desc&limit=50");
-        const all = Array.isArray(rows) ? rows : [];
-        return json({
-          stats: {
-            total: all.length,
-            new: all.filter(x => (x.status || "new").toLowerCase() === "new").length,
-            hajj: all.filter(x => (x.interested_in || "").toLowerCase() === "hajj").length,
-            umrah: all.filter(x => (x.interested_in || "").toLowerCase() === "umrah").length
-          },
-          enquiries: all
-        });
-      } catch {
-        return json({ error: "Could not load enquiries" }, 503);
-      }
-    }
-
-    const enquiryMatch = path.match(/^\/api\/admin\/enquiries\/(\d+)$/);
-    if (enquiryMatch && method === "PATCH") {
-      const id = enquiryMatch[1];
-      const body = await request.json().catch(() => ({}));
-      const allowed = ["new", "contacted", "follow-up", "confirmed", "completed", "cancelled"];
-      const status = String(body.status || "").toLowerCase();
-      if (!allowed.includes(status)) return json({ error: "Invalid status" }, 400);
-
-      try {
-        const rows = await supabase(env, `enquiries?id=eq.${id}`, {
-          method: "PATCH",
-          headers: { Prefer: "return=representation" },
-          body: JSON.stringify({ status })
-        });
-        return json({ ok: true, enquiry: rows?.[0] || null });
-      } catch {
-        return json({ error: "Could not update enquiry" }, 503);
-      }
-    }
+   
 
     if (path === "/api/admin/packages" && method === "GET") return json(PACKAGES);
     if (path === "/api/admin/settings" && method === "GET") return json(SETTINGS);
